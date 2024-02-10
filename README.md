@@ -1,147 +1,47 @@
-# QA-Interview-Ismail
-QA Interview assignment project for Ismail
-
-
-## Weather 'application' overview
-
-You are assigned to a team which is developing weather related application's **MVP** backend.
-Your task is to create automated tests for the **API that the application will use**.
-
-The MVP app will use one API, that tells the weather conditions for a fixed city. (Condition, description, temperatures ...etc.).
-
-The API will return the following fields: `city`, `condition`, `icon`, `description` `conditionId` `tempInFahrenheit` and `tempInCelsius`
-
-
-## Weather backend's acceptance criteria-s
-
-* The **city field** would give a fixed city name as a string
-* The **conditionID field** gives an ID of the current condition
-
-  | ID   | Value   |
-  | ---- | ------  |
-  | 1    | clear   |
-  | 2    | windy   |
-  | 3    | mist    |
-  | 4    | drizzle |
-  | 5    | dust    |
-
-* The **condition field** would tell the weather condition as a string based on condition id
-    * Can have the following values `clear`, `windy`, `mist`, `drizzle` and `dust`
-* The **icon field** gives a `png` type image (string) that correlates (same as) the current condition
-* The **weather object** contains the temperature in both Fahrenheit and Celsius
-    * The **tempInFahrenheit field** contains the current temperature in Fahrenheits
-        * Should have 0 digits
-    * The **tempInCelsius field** contains the current remperature in Celsius
-        * Should have 0 digits
-        * Calculated from the tempInFahrenheit field
-        * Uses normal rounding rules
-* The **description field** returns a description text of the current weather
-    * The description is a fixed text with a suffix
-    * The description suffix is calculated based on the temperature in celsius
-    * Calculation rules:
-
-| Rule            | Description   |
-| -------------   | ------------- |
-| celsius <= 0    | freezing      |
-| celsius < 10    | cold          |
-| celsius < 20    | mild          |
-| celsius < 25    | warm          |
-| celsius >= 25   | hot           |
-
-
-### The API:
-
-The base url of the API is: `https://backend-interview.tools.gcp.viesure.io`
-<br >**Eg.:** GET `https://backend-interview.tools.gcp.viesure.io/weather`
-
-**GET .../weather**
-* You can fetch the endpoint through  `{base_url}/weather` with the following data structure:
-```curl
-curl -X 'GET' \
-  '{base_url}/weather' \
-  -H 'accept: application/json'
-```
-```json
-{
-  "city"        : "Vienna",
-  "condition"   : "clear",
-  "icon"        : "clear.PNG",
-  "conditionId" : 1,
-  "description" : "The weather is mild",
-  "weather": {
-    "tempInFahrenheit" : 60,
-    "tempInCelsius"    : 15
-  }
-}
+##### HOW TO RUN TESTS
+```sh
+ -> Under the runners package "CukesRunner" right click and run the class. "src > test > java > com > MVP > runners > CukesRunner"
+ -> mvn clean verify --> In the IDE console or navigate project path in command line and run.
+ -> mvn clean verify -DHEADLESS=true --> any browser-based tests should execute in headless mode, meaning without a graphical user interface
+ -> mvn clean verify "-Dcucumber.filter.tags=@api" --> any specific test scenarios could run via mvn with anotations
+ -> mvn clean verify -DBROWSER=chrome --> Also browser type can be controlled easily from command line with this command.
+ -> mvn clean verify "-Dcucumber.filter.tags=@ui" -DBROWSER=chrome --> Both browserType and tags which wanted to run can control easily from the command line.
 ```
 
-### Helper API-s
+##### REPORT REVIEW
+>- Cucumber report is generated under the target folder: `target/cucumber/cucumber-html-reports/overview-features.html`
 
-You are also provided 2 helper API-s to be able to set the states for the GET weather API
-
-Helper API-s don't need to be tested, they exist so you can set the states of the API under test
-
-#### PUT .../weather/temp
-
-You can set the Fahrenheit temperature with this API, by sending an Integer
-* You can call the endpoint through  `{base_url}/weather/temp`
-```cURL
-curl -X 'PUT' \
-  '{base_url}/weather/temp' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "tempInFahrenheit": 17
-}'
-```
-#### PUT .../weather/condition
-
-You can set the Condition ID with this API, by sending an Integer
-* You can call the endpoint through  `{base_url}/weather/condition`
-```cURL
-curl -X 'PUT' \
-  '{base_url}/weather/condition' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "condition": 1
-}'
-```
+##### UI & API TEST HANDLING
+>- UI Test Failures (@ui): Automatically captures screenshots upon failure, providing crucial visual debug information.
+>- API Test Failures (@api): Skips screenshot capture, as it's not applicable to non-UI tests.
 
 
-## Your task
-You need to create a test automation framework and implement test cases for the weather API (defined above)
-using **Cucumber,** **testng** and **Selenium** where needed
-* Define Cucumber scenarios
-* Use the following language, frameworks and technologies within the automation project:
-    * Java
-    * Selenium
-    * Maven and POM
-    * BDD and Executed cucumber tests.
-    * Add an external reporting framework of your choice. (eg.: Extent, Allure ...etc)
-    * You can add any other helper library if you wish
-* Create a README file with some informative description of your project
-    * Also include the results of the test report of your scenarios (in the readme)
-* Open a pull request to this project.
+##### THE RESULTS OF THE TEST REPORTS
+#### API TEST SCENARIOS RESULTS
 
-## Bonus
+>- Totally 26 scenarios run and 5 of them failed depends on last run. This failed scenarios are listed like this:
+![img_8.png](img_8.png)    
+>- **First Failure:**  When converting 33°F to Celsius, the precise result is approximately 0.56°C. Adhering to standard rounding conventions to the nearest whole number, this should be rounded up to 1°C. However, an observed discrepancy reveals the conversion was inaccurately rounded down to 0°C
+![img_1.png](img_1.png)
 
-To also make use of selenium, test a few fields from `https://openweathermap.org/`
+>- **Second Failure** The expectation was for a temperature of 10 Degrees Celsius to be described as 'The weather is mild.' However, the actual description received was 'The weather is cold'.
+![img_2.png](img_2.png)
 
-#### Task1
-Verify the main page's search field contains correct placeholder text
+>- **Third Failure:**  When converting 66°F to Celsius, the precise result is approximately 18.89°C. According to standard rounding conventions to the nearest whole number, this should be rounded up to 19°C. However, an observed discrepancy reveals the conversion was inaccurately rounded down to 18°C
+![img_3.png](img_3.png)
 
-![Search](./resources/openweather_search_placeholder_autumn.png)
+>- **Forth Failure:**  The expectation was for a temperature of 20 Degrees Celsius to be described as 'The weather is warm.' However, the actual description received was 'The weather is '.
+![img_4.png](img_4.png)
 
-#### Task2
-* Search for `Sydney`, and select `Sydney, AU` from the list
-* Verify the selected city's title is correct
-* Verify that the date shown is correct
-* Verify that the time shown is correct
+>- **Fifth Failure:**  The expectation was for a temperature of 24 Degrees Celsius to be described as 'The weather is warm.' However, the actual description received was 'The weather is '.
+![img_5.png](img_5.png)
+
+#### UI TEST SCENARIOS RESULTS
+>- Totally 2 scenarios run and sometimes both of scenarios are passing, sometimes one of them is failing. Selected city list are not coming for every time, and specified element could not find.
+![img_6.png](img_6.png)
+>- Here is the one 2 scenarios passed result
+![img_7.png](img_7.png)
 
 
-![City](./resources/openweather_search_city.png)
-
-
-## Next Step
-Our QA and Development team will review your task carefully and contact you as soon as possible.
+- Ismail SONMEZ
+- QA Automation Engineer     
